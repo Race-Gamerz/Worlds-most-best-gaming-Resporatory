@@ -1,0 +1,48 @@
+const readline = require('readline');
+readline.emitKeypressEvents(process.stdin);
+process.stdin.setRawMode(true);
+
+let worm = [{x:10,y:10}];
+let dir = {x:1,y:0};
+let food = {x:5,y:5};
+
+function placeFood() {
+  food = {
+    x: Math.floor(Math.random()*20),
+    y: Math.floor(Math.random()*20)
+  };
+}
+
+process.stdin.on('keypress', (str, key) => {
+  if (key.name === 'up') dir = {x:0,y:-1};
+  if (key.name === 'down') dir = {x:0,y:1};
+  if (key.name === 'left') dir = {x:-1,y:0};
+  if (key.name === 'right') dir = {x:1,y:0};
+  if (key.ctrl && key.name === 'c') process.exit();
+});
+
+setInterval(() => {
+  console.clear();
+  
+  // Move worm
+  const head = {x: worm[0].x + dir.x, y: worm[0].y + dir.y};
+  worm.unshift(head);
+  
+  // Check collision
+  if (head.x === food.x && head.y === food.y) {
+    placeFood();
+  } else {
+    worm.pop();
+  }
+  
+  // Draw
+  for (let y = 0; y < 20; y++) {
+    let line = '';
+    for (let x = 0; x < 20; x++) {
+      if (worm.some(seg => seg.x === x && seg.y === y)) line += 'O';
+      else if (x === food.x && y === food.y) line += '*';
+      else line += ' ';
+    }
+    console.log(line);
+  }
+}, 200);
