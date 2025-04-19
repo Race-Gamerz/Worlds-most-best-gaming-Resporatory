@@ -1,0 +1,37 @@
+import random
+import time
+from threading import Thread
+
+words = ["brains", "flesh", "groan", "walk", "hungry", "night", "day", "run"]
+zombie_distance = 10
+score = 0
+
+def zombie_approaches():
+    global zombie_distance
+    while zombie_distance > 0:
+        time.sleep(2 - (score * 0.1))
+        zombie_distance -= 1
+        print(f"\nZombie is now {zombie_distance} meters away!")
+
+def game_loop():
+    global zombie_distance, score
+    Thread(target=zombie_approaches, daemon=True).start()
+    
+    while zombie_distance > 0:
+        word = random.choice(words)
+        print(f"\nType: {word}")
+        start = time.time()
+        attempt = input().strip().lower()
+        end = time.time()
+        
+        if attempt == word:
+            speed = end - start
+            zombie_distance += min(3, int(5/speed))
+            score += 1
+            print(f"Correct! Zombie pushed back to {zombie_distance}m")
+        else:
+            print("Wrong! Zombie gets closer...")
+    
+    print(f"\nGAME OVER! The zombie ate you! Final score: {score}")
+
+game_loop()
