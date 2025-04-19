@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<body>
+<canvas id="fractal" width="800" height="800"></canvas>
+<script>
+const canvas = document.getElementById('fractal');
+const ctx = canvas.getContext('2d');
+let zoom = 1, offsetX = 0, offsetY = 0;
+
+function draw() {
+    const width = canvas.width, height = canvas.height;
+    const imageData = ctx.createImageData(width, height);
+    const data = imageData.data;
+    
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
+            const zx = (x - width/2) * 4/width * zoom + offsetX;
+            const zy = (y - height/2) * 4/height * zoom + offsetY;
+            let c = 0, zx2 = 0, zy2 = 0;
+            
+            while (zx2 + zy2 < 4 && c < 100) {
+                const tmp = zx2 - zy2 + zx;
+                zy2 = 2 * Math.sqrt(zx2 * zy2) + zy;
+                zx2 = tmp;
+                c++;
+            }
+            
+            const idx = (y * width + x) * 4;
+            data[idx] = c * 5 % 256;
+            data[idx+1] = c * 7 % 256;
+            data[idx+2] = c * 11 % 256;
+            data[idx+3] = 255;
+        }
+    }
+    
+    ctx.putImageData(imageData, 0, 0);
+}
+
+canvas.addEventListener('click', e => {
+    zoom *= 0.8;
+    offsetX += (e.clientX - canvas.width/2) * 4/canvas.width * zoom;
+    offsetY += (e.clientY - canvas.height/2) * 4/canvas.height * zoom;
+    draw();
+});
+
+draw();
+</script>
+</body>
+</html>
